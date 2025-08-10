@@ -13,7 +13,12 @@ $last_name = $_SESSION['last_name'] ?? '';
 $full_name = $first_name . ' ' . $last_name;
 
 $db = new database();
+
+// Get customer orders
 $customerOrders = $db->getCustomerOrders($_SESSION['user_id']);
+
+// Get order statistics
+$orderStats = $db->getOrderStats($_SESSION['user_id']); // Gagawa ka nito sa database.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +28,7 @@ $customerOrders = $db->getCustomerOrders($_SESSION['user_id']);
     <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-    <style>
+  <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #f4f6f9; }
         .sidebar {
@@ -118,6 +123,23 @@ $customerOrders = $db->getCustomerOrders($_SESSION['user_id']);
 <div class="main-content">
     <h1>👋 Welcome, <?= htmlspecialchars($full_name) ?>!</h1>
 
+    <!-- Order Statistics -->
+    <div class="d-flex justify-content-around mb-4">
+        <div class="stat-box">
+            <h4><?= $orderStats['pending'] ?? 0 ?></h4>
+            <p>Pending Orders</p>
+        </div>
+        <div class="stat-box">
+            <h4><?= $orderStats['shipped'] ?? 0 ?></h4>
+            <p>Shipped Orders</p>
+        </div>
+        <div class="stat-box">
+            <h4><?= $orderStats['completed'] ?? 0 ?></h4>
+            <p>Completed Orders</p>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
     <div class="card">
         <h3>Your Recent Orders</h3>
         <?php if (count($customerOrders) > 0): ?>
@@ -132,8 +154,8 @@ $customerOrders = $db->getCustomerOrders($_SESSION['user_id']);
                 <tr>
                     <td><?= $order['order_id'] ?></td>
                     <td><?= $order['order_date'] ?></td>
-                    <td><?= $order['order_status'] ?></td>
-                    <td>﷼<?= number_format($order['total_amount'], 2) ?></td>
+                    <td><?= ucfirst($order['order_status']) ?></td>
+                    <td>₱<?= number_format($order['total_amount'], 2) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </table>
@@ -142,9 +164,27 @@ $customerOrders = $db->getCustomerOrders($_SESSION['user_id']);
         <?php endif; ?>
     </div>
 
-    <div class="table-section">
-        <h3>Need Help?</h3>
-        <p>For questions about your orders or deliveries, please contact support at <strong>support@yourshop.com</strong>.</p>
+  <!-- Quick Actions -->
+<div class="card">
+    <h3>Quick Actions</h3>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+        <a href="browse_products.php" class="btn btn-primary btn-sm px-3">
+            Shop
+        </a>
+        <a href="cart.php" class="btn btn-success btn-sm px-3">
+            Cart
+        </a>
+        <a href="my_orders.php" class="btn btn-info btn-sm px-3">
+            Orders
+        </a>
+    </div>
+</div>
+
+
+    <!-- Promotions -->
+    <div class="card bg-warning text-dark">
+        <h3>🔥 Special Offer</h3>
+        <p>Get 10% OFF for orders above ₱1,000. Use code: <strong>IMISSU3000</strong></p>
     </div>
 </div>
 

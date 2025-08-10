@@ -534,6 +534,28 @@ function removeFromCart($cart_id) {
     $stmt->execute([$cart_id]);
 }
 
+function getOrderStats($user_id) {
+    $con = $this->opencon();
+    $stmt = $con->prepare("
+        SELECT order_status, COUNT(*) as total
+        FROM orders
+        WHERE user_id = ?
+        GROUP BY order_status
+    ");
+    $stmt->execute([$user_id]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stats = ['pending' => 0, 'shipped' => 0, 'completed' => 0];
+    foreach ($results as $row) {
+        $status = strtolower($row['order_status']);
+        if (isset($stats[$status])) {
+            $stats[$status] = $row['total'];
+        }
+    }
+    return $stats;
+}
+
+
 
 
 
